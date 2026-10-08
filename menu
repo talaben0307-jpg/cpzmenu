@@ -14,6 +14,9 @@ function Library:CreateWindow(config)
     if CoreGui:FindFirstChild("UniverseKeySystem") then
         CoreGui.UniverseKeySystem:Destroy()
     end
+    if CoreGui:FindFirstChild("CPZFloatingHub") then
+        CoreGui.CPZFloatingHub:Destroy()
+    end
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CPZCyberpunkMenu"
@@ -21,11 +24,12 @@ function Library:CreateWindow(config)
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Enabled = false -- Ẩn menu chính lúc đầu để chờ nhập key
 
-    -- Khung chính phong cách Cyberpunk tối
+    -- Khung chính phong cách Cyberpunk làm trong suốt một chút
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    MainFrame.BackgroundTransparency = 0.25 -- Làm trong suốt nền chính
     MainFrame.Position = UDim2.new(0.5, -290, 0.5, -240)
     MainFrame.Size = UDim2.new(0, 580, 0, 480)
     MainFrame.ClipsDescendants = true
@@ -49,24 +53,134 @@ function Library:CreateWindow(config)
         end
     end)
 
-    -- Thanh tiêu đề trên cùng (Draggable)
+    -- Thanh tiêu đề trên cùng (Draggable) - làm trong suốt nhẹ theo
     local TopBar = Instance.new("Frame")
     TopBar.Parent = MainFrame
     TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    TopBar.BackgroundTransparency = 0.3
     TopBar.Size = UDim2.new(1, 0, 0, 45)
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Parent = TopBar
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Position = UDim2.new(0, 15, 0, 0)
-    TitleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+    TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
     TitleLabel.Font = Enum.Font.GothamBold
     TitleLabel.Text = "⚡ " .. titleText .. " | " .. subTitleText
     TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
     TitleLabel.TextSize = 14
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Kéo thả bảng (Draggable) mượt mà
+    -- ==========================================
+    -- NÚT ĐÓNG (X) VÀ NÚT THU NHỎ (-)
+    -- ==========================================
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Parent = TopBar
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    CloseBtn.Position = UDim2.new(1, -35, 0.5, -12)
+    CloseBtn.Size = UDim2.new(0, 24, 0, 24)
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.Text = "X"
+    CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseBtn.TextSize = 12
+
+    local CloseCorner = Instance.new("UICorner")
+    CloseCorner.CornerRadius = UDim.new(0, 4)
+    CloseCorner.Parent = CloseBtn
+
+    local MinimizeBtn = Instance.new("TextButton")
+    MinimizeBtn.Parent = TopBar
+    MinimizeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    MinimizeBtn.Position = UDim2.new(1, -65, 0.5, -12)
+    MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
+    MinimizeBtn.Font = Enum.Font.GothamBold
+    MinimizeBtn.Text = "-"
+    MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MinimizeBtn.TextSize = 14
+
+    local MinCorner = Instance.new("UICorner")
+    MinCorner.CornerRadius = UDim.new(0, 4)
+    MinCorner.Parent = MinimizeBtn
+
+    -- Tạo Nút Nổi RGB "HUB" (làm trong suốt nhẹ phần nền)
+    local FloatGui = Instance.new("ScreenGui")
+    FloatGui.Name = "CPZFloatingHub"
+    FloatGui.Parent = CoreGui
+    FloatGui.ResetOnSpawn = false
+    FloatGui.Enabled = false
+
+    local FloatBtn = Instance.new("TextButton")
+    FloatBtn.Parent = FloatGui
+    FloatBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    FloatBtn.BackgroundTransparency = 0.25
+    FloatBtn.Position = UDim2.new(0, 50, 0, 200)
+    FloatBtn.Size = UDim2.new(0, 60, 0, 60)
+    FloatBtn.Font = Enum.Font.GothamBold
+    FloatBtn.Text = "HUB"
+    FloatBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
+    FloatBtn.TextSize = 13
+    FloatBtn.AutoButtonColor = false
+
+    local FloatCorner = Instance.new("UICorner")
+    FloatCorner.CornerRadius = UDim.new(1, 0)
+    FloatCorner.Parent = FloatBtn
+
+    local FloatStroke = Instance.new("UIStroke")
+    FloatStroke.Parent = FloatBtn
+    FloatStroke.Thickness = 2
+    FloatStroke.Color = Color3.fromRGB(0, 255, 255)
+
+    task.spawn(function()
+        local hue = 0
+        while FloatStroke and FloatStroke.Parent do
+            hue = (hue + 1) % 360
+            FloatStroke.Color = Color3.fromHSV(hue / 360, 1, 1)
+            task.wait(0.03)
+        end
+    end)
+
+    MinimizeBtn.MouseButton1Click:Connect(function()
+        ScreenGui.Enabled = false
+        FloatGui.Enabled = true
+    end)
+
+    FloatBtn.MouseButton1Click:Connect(function()
+        ScreenGui.Enabled = true
+        FloatGui.Enabled = false
+    end)
+
+    CloseBtn.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+        FloatGui:Destroy()
+    end)
+
+    local fDragging, fInput, fStart, fPos
+    FloatBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            fDragging = true
+            fStart = input.Position
+            fPos = FloatBtn.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    fDragging = false
+                end
+            end)
+        end
+    end)
+
+    FloatBtn.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            fInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == fInput and fDragging then
+            local delta = input.Position - fStart
+            FloatBtn.Position = UDim2.new(fPos.X.Scale, fPos.X.Offset + delta.X, fPos.Y.Scale, fPos.Y.Offset + delta.Y)
+        end
+    end)
+
     local dragging, dragInput, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -94,7 +208,6 @@ function Library:CreateWindow(config)
         end
     end)
 
-    -- Sidebar chứa danh sách Tab bên trái
     local Sidebar = Instance.new("ScrollingFrame")
     Sidebar.Parent = MainFrame
     Sidebar.BackgroundTransparency = 1
@@ -108,7 +221,6 @@ function Library:CreateWindow(config)
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0, 6)
 
-    -- Khu vực hiển thị nội dung bên phải
     local ContentArea = Instance.new("Frame")
     ContentArea.Parent = MainFrame
     ContentArea.BackgroundTransparency = 1
@@ -117,7 +229,7 @@ function Library:CreateWindow(config)
     ContentArea.ClipsDescendants = true
 
     -- ==========================================
-    -- HỆ THỐNG NHẬP KEY CYBERPUNK CHUYÊN NGHIỆP
+    -- HỆ THỐNG NHẬP KEY CYBERPUNK (Nền trong suốt)
     -- ==========================================
     local KeyGui = Instance.new("ScreenGui")
     KeyGui.Name = "UniverseKeySystem"
@@ -127,6 +239,7 @@ function Library:CreateWindow(config)
     local KeyFrame = Instance.new("Frame")
     KeyFrame.Parent = KeyGui
     KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    KeyFrame.BackgroundTransparency = 0.25 -- Làm trong suốt khung key
     KeyFrame.Position = UDim2.new(0.5, -210, 0.5, -125)
     KeyFrame.Size = UDim2.new(0, 420, 0, 250)
 
@@ -142,6 +255,7 @@ function Library:CreateWindow(config)
     local KeyTitle = Instance.new("TextLabel")
     KeyTitle.Parent = KeyFrame
     KeyTitle.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    KeyTitle.BackgroundTransparency = 0.3
     KeyTitle.Size = UDim2.new(1, 0, 0, 50)
     KeyTitle.Font = Enum.Font.GothamBold
     KeyTitle.Text = "🔐 XÁC THỰC KEY UNIVERSE SCRIPT"
@@ -155,6 +269,7 @@ function Library:CreateWindow(config)
     local KeyInput = Instance.new("TextBox")
     KeyInput.Parent = KeyFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    KeyInput.BackgroundTransparency = 0.3
     KeyInput.Position = UDim2.new(0, 35, 0, 75)
     KeyInput.Size = UDim2.new(0, 350, 0, 55)
     KeyInput.Font = Enum.Font.Gotham
@@ -185,7 +300,7 @@ function Library:CreateWindow(config)
     SubmitBtn.MouseButton1Click:Connect(function()
         if KeyInput.Text == CorrectKey then
             KeyGui:Destroy()
-            ScreenGui.Enabled = true -- Hiện menu chính sau khi nhập đúng key
+            ScreenGui.Enabled = true
         else
             SubmitBtn.Text = "❌ SAI KEY! THỬ LẠI"
             SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
@@ -225,6 +340,7 @@ function Library:CreateWindow(config)
         local TabBtn = Instance.new("TextButton")
         TabBtn.Parent = Sidebar
         TabBtn.BackgroundColor3 = FirstTab and Color3.fromRGB(30, 30, 45) or Color3.fromRGB(20, 20, 28)
+        TabBtn.BackgroundTransparency = FirstTab and 0.2 or 0.4
         TabBtn.Size = UDim2.new(1, 0, 0, 38)
         TabBtn.Font = Enum.Font.GothamSemibold
         TabBtn.Text = "  " .. tabTitle
@@ -240,10 +356,12 @@ function Library:CreateWindow(config)
             for _, t in pairs(TabsList) do
                 t.Container.Visible = false
                 t.Button.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                t.Button.BackgroundTransparency = 0.4
                 t.Button.TextColor3 = Color3.fromRGB(180, 180, 200)
             end
             TabContainer.Visible = true
             TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+            TabBtn.BackgroundTransparency = 0.2
             TabBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
         end)
 
@@ -270,6 +388,7 @@ function Library:CreateWindow(config)
             local Button = Instance.new("TextButton")
             Button.Parent = TabContainer
             Button.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+            Button.BackgroundTransparency = 0.3
             Button.Size = UDim2.new(1, -10, 0, 40)
             Button.Font = Enum.Font.Gotham
             Button.Text = "  " .. btnTitle
@@ -284,17 +403,21 @@ function Library:CreateWindow(config)
 
             Button.MouseEnter:Connect(function()
                 Button.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+                Button.BackgroundTransparency = 0.1
             end)
             Button.MouseLeave:Connect(function()
                 Button.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+                Button.BackgroundTransparency = 0.3
             end)
 
             Button.MouseButton1Click:Connect(function()
                 pcall(callback)
                 Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+                Button.BackgroundTransparency = 0
                 Button.TextColor3 = Color3.fromRGB(15, 15, 20)
                 task.wait(0.15)
                 Button.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+                Button.BackgroundTransparency = 0.1
                 Button.TextColor3 = Color3.fromRGB(240, 240, 240)
             end)
         end
@@ -308,10 +431,12 @@ function Library:CreateWindow(config)
             for _, t in pairs(TabsList) do
                 t.Container.Visible = false
                 t.Button.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                t.Button.BackgroundTransparency = 0.4
                 t.Button.TextColor3 = Color3.fromRGB(180, 180, 200)
             end
             TabsList[index].Container.Visible = true
             TabsList[index].Button.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+            TabsList[index].Button.BackgroundTransparency = 0.2
             TabsList[index].Button.TextColor3 = Color3.fromRGB(0, 255, 255)
         end
     end
