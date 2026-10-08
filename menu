@@ -1,4 +1,4 @@
--- // Fluent-Style Cyberpunk Hub with Minimize, Close (Destroy) & RGB Toggle
+-- // Fluent-Style Cyberpunk Hub Base (Ready for custom tabs & loadstrings)
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
@@ -66,7 +66,7 @@ KeyInput.Position = UDim2.new(0, 20, 0, 65)
 KeyInput.BackgroundColor3 = Theme.Sidebar
 KeyInput.BorderSizePixel = 0
 KeyInput.Font = Enum.Font.Gotham
-KeyInput.PlaceholderText = "Nhập Key (0946)..."
+KeyInput.PlaceholderText = "Nhập Key..."
 KeyInput.PlaceholderColor3 = Theme.SubText
 KeyInput.Text = ""
 KeyInput.TextColor3 = Theme.Text
@@ -192,6 +192,21 @@ OpenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
 end)
 
+-- Xử lý ẩn/hiện Hub bằng phím H
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.H then
+        if not KeyFrame.Visible then
+            if MainFrame.Visible then
+                MainFrame.Visible = false
+                OpenButton.Visible = true
+            else
+                OpenButton.Visible = false
+                MainFrame.Visible = true
+            end
+        end
+    end
+end)
+
 -- Sidebar bên trái
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 140, 1, 0)
@@ -304,6 +319,7 @@ local function CreateTab(name)
         Page.Visible = true
         TabButton.BackgroundTransparency = 0
         TabButton.TextColor3 = Theme.Text
+        CurrentTabTitle.Text = name
         FirstTab = false
     end
 
@@ -386,3 +402,12 @@ SubmitBtn.MouseButton1Click:Connect(function()
         KeyInput.Text = ""
     end
 end)
+
+-- ==========================================
+-- 5. KHU VỰC THÊM TAB VÀ TÍNH NĂNG CỦA CẬU
+-- ==========================================
+-- Ví dụ cách dùng:
+-- local TabMoi = CreateTab("Tên Tab")
+-- AddButton(TabMoi, "Tên Nút Bấm", function()
+--     -- Code thực thi khi bấm nút
+-- end)
