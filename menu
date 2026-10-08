@@ -1,4 +1,4 @@
--- // Fluent-Style Cyberpunk Hub with Slide-In Key System & RGB Border
+-- // Fluent-Style Cyberpunk Hub with Minimize, Close (Destroy) & RGB Toggle
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
@@ -24,16 +24,14 @@ local Theme = {
     Border = Color3.fromRGB(45, 45, 65)
 }
 
--- Biến lưu các UIStroke để hiệu ứng RGB đổi màu liên tục
 local RGBStrokes = {}
 
 -- ==========================================
--- 1. BẢNG NHẬP KEY (SLIDE-IN TỪ BÊN PHẢI)
+-- 1. BẢNG NHẬP KEY (SLIDE-IN + RGB)
 -- ==========================================
 local KeyFrame = Instance.new("Frame")
 KeyFrame.Name = "KeyFrame"
 KeyFrame.Size = UDim2.new(0, 380, 0, 200)
--- Bắt đầu đặt vị trí ở ngoài màn hình bên phải (1.5, 0) để chuẩn bị trượt vào
 KeyFrame.Position = UDim2.new(1.5, 0, 0.5, -100)
 KeyFrame.BackgroundColor3 = Theme.Background
 KeyFrame.BorderSizePixel = 0
@@ -99,14 +97,42 @@ local BtnCorner = Instance.new("UICorner")
 BtnCorner.CornerRadius = UDim.new(0, 6)
 BtnCorner.Parent = SubmitBtn
 
--- Hiệu ứng Tween trượt từ phải qua trái vào chính giữa màn hình (Bounce nhẹ)
 TweenService:Create(KeyFrame, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
     Position = UDim2.new(0.5, -190, 0.5, -100)
 }):Play()
 
 
 -- ==========================================
--- 2. GIAO DIỆN CHÍNH (FLUENT STYLE)
+-- 2. NÚT NỔI RGB ĐỂ MỞ LẠI HUB (TOGGLE BUTTON)
+-- ==========================================
+local OpenButton = Instance.new("TextButton")
+OpenButton.Name = "OpenButton"
+OpenButton.Size = UDim2.new(0, 70, 0, 35)
+OpenButton.Position = UDim2.new(0, 20, 0.5, -170)
+OpenButton.BackgroundColor3 = Theme.Background
+OpenButton.BorderSizePixel = 0
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.Text = "Hub"
+OpenButton.TextColor3 = Theme.Text
+OpenButton.TextSize = 13
+OpenButton.Visible = false
+OpenButton.Active = true
+OpenButton.Draggable = true
+OpenButton.Parent = ScreenGui
+
+local OpenCorner = Instance.new("UICorner")
+OpenCorner.CornerRadius = UDim.new(0, 6)
+OpenCorner.Parent = OpenButton
+
+local OpenStroke = Instance.new("UIStroke")
+OpenStroke.Color = Color3.fromRGB(0, 229, 255)
+OpenStroke.Thickness = 1.5
+OpenStroke.Parent = OpenButton
+table.insert(RGBStrokes, OpenStroke)
+
+
+-- ==========================================
+-- 3. GIAO DIỆN CHÍNH (MAIN HUB)
 -- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
@@ -129,6 +155,43 @@ local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = MainFrame
 
+-- Nút Dấu Trừ (-) thu nhỏ Hub
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+MinimizeBtn.Position = UDim2.new(1, -60, 0, 5)
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Theme.SubText
+MinimizeBtn.TextSize = 18
+MinimizeBtn.Parent = MainFrame
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    OpenButton.Visible = true
+end)
+
+-- Nút Dấu Nhân (X) tắt hoàn toàn script (Destroy)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CloseBtn.Position = UDim2.new(1, -30, 0, 5)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+CloseBtn.TextSize = 14
+CloseBtn.Parent = MainFrame
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Nút mở lại Hub từ nút RGB nổi
+OpenButton.MouseButton1Click:Connect(function()
+    OpenButton.Visible = false
+    MainFrame.Visible = true
+end)
+
 -- Sidebar bên trái
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 140, 1, 0)
@@ -149,6 +212,7 @@ FixSide.Parent = Sidebar
 
 local HubName = Instance.new("TextLabel")
 HubName.Size = UDim2.new(1, 0, 0, 50)
+HubName.Position = UDim2.new(0, 0, 0, 0)
 HubName.BackgroundTransparency = 1
 HubName.Font = Enum.Font.GothamBold
 HubName.Text = "CYBER HUB"
@@ -156,10 +220,23 @@ HubName.TextColor3 = Color3.fromRGB(0, 229, 255)
 HubName.TextSize = 14
 HubName.Parent = Sidebar
 
+local TabButtonContainer = Instance.new("ScrollingFrame")
+TabButtonContainer.Size = UDim2.new(1, 0, 1, -60)
+TabButtonContainer.Position = UDim2.new(0, 0, 0, 55)
+TabButtonContainer.BackgroundTransparency = 1
+TabButtonContainer.BorderSizePixel = 0
+TabButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+TabButtonContainer.ScrollBarThickness = 0
+TabButtonContainer.Parent = Sidebar
+
 local TabListLayout = Instance.new("UIListLayout")
 TabListLayout.Padding = UDim.new(0, 5)
 TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-TabListLayout.Parent = Sidebar
+TabListLayout.Parent = TabButtonContainer
+
+TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    TabButtonContainer.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 10)
+end)
 
 local TabContainer = Instance.new("Folder")
 TabContainer.Name = "TabContainer"
@@ -172,7 +249,7 @@ TopBar.BackgroundTransparency = 1
 TopBar.Parent = MainFrame
 
 local CurrentTabTitle = Instance.new("TextLabel")
-CurrentTabTitle.Size = UDim2.new(1, -20, 1, 0)
+CurrentTabTitle.Size = UDim2.new(1, -70, 1, 0)
 CurrentTabTitle.Position = UDim2.new(0, 15, 0, 0)
 CurrentTabTitle.BackgroundTransparency = 1
 CurrentTabTitle.Font = Enum.Font.GothamBold
@@ -197,7 +274,7 @@ local function CreateTab(name)
     TabButton.TextColor3 = Theme.SubText
     TabButton.TextSize = 12
     TabButton.TextXAlignment = Enum.TextXAlignment.Left
-    TabButton.Parent = Sidebar
+    TabButton.Parent = TabButtonContainer
 
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 6)
@@ -265,14 +342,11 @@ local function AddButton(tab, text, callback)
     end)
 end
 
-
 -- ==========================================
--- 3. XỬ LÝ SỰ KIỆN KEY & HIỆU ỨNG RGB
+-- 4. XỬ LÝ SỰ KIỆN KEY & RGB LOOP
 -- ==========================================
-
--- Chạy vòng lặp đổi màu RGB mượt mà cho các đường viền UIStroke
 RunService.RenderStepped:Connect(function()
-    local hue = tick() % 5 / 5 -- Chu kỳ đổi màu liên tục theo thời gian
+    local hue = tick() % 5 / 5
     local rgbColor = Color3.fromHSV(hue, 1, 1)
     
     for _, stroke in ipairs(RGBStrokes) do
@@ -284,7 +358,6 @@ end)
 
 SubmitBtn.MouseButton1Click:Connect(function()
     if KeyInput.Text == "0946" then
-        -- Trượt bảng Key bay ngược về bên phải rồi biến mất
         TweenService:Create(KeyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
             Position = UDim2.new(1.5, 0, 0.5, -100)
         }):Play()
@@ -292,7 +365,6 @@ SubmitBtn.MouseButton1Click:Connect(function()
         task.wait(0.4)
         KeyFrame.Visible = false
         
-        -- Mở Menu chính với hiệu ứng phóng to từ giữa ra
         MainFrame.Visible = true
         MainFrame.Size = UDim2.new(0, 460, 0, 300)
         MainFrame.BackgroundTransparency = 1
@@ -302,7 +374,6 @@ SubmitBtn.MouseButton1Click:Connect(function()
             BackgroundTransparency = 0
         }):Play()
     else
-        -- Lắc nhẹ khung khi nhập sai key
         local pos = KeyFrame.Position
         for i = 1, 3 do
             KeyFrame.Position = pos + UDim2.new(0, -6, 0, 0)
@@ -316,7 +387,7 @@ SubmitBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tạo các tab mẫu cho menu
+-- Tạo các tab mẫu
 local Tab1 = CreateTab("Trang Chủ")
 AddButton(Tab1, "Tính năng Hitbox Expander", function()
     print("Đã bật Hitbox!")
@@ -326,14 +397,6 @@ AddButton(Tab1, "Tính năng ESP Player", function()
 end)
 
 local Tab2 = CreateTab("Cài Đặt")
-AddButton(Tab2, "Ẩn/Hiện Menu (Phím H)", function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
--- Phím tắt H để ẩn/hiện menu chính
-UserInputService.InputBegan:Connect(function(input, gp)
-    if not gp and input.KeyCode == Enum.KeyCode.H and KeyFrame.Visible == false then
-        MainFrame.MainFrame = not MainFrame.Visible -- Toggle menu
-        MainFrame.Visible = not MainFrame.Visible
-    end
+AddButton(Tab2, "Tùy chỉnh thêm ở đây", function()
+    print("Settings clicked!")
 end)
