@@ -31,7 +31,7 @@ function Library:CreateWindow(config)
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
     MainFrame.BackgroundTransparency = 0.25
-    MainFrame.Position = UDim2.new(0.5, -290, 0.5, 50)
+    MainFrame.Position = UDim2.new(0.5, -290, 0.5, 50) -- Vị trí ban đầu thấp hơn để làm hiệu ứng trượt
     MainFrame.Size = UDim2.new(0, 580, 0, 480)
     MainFrame.ClipsDescendants = true
 
@@ -140,7 +140,7 @@ function Library:CreateWindow(config)
         end
     end)
 
-    -- Hàm ẩn/hiện menu chung để gán cho cả nút bấm và phím F
+    -- Hàm ẩn/hiện menu chính chung
     local function ToggleMenu()
         if ScreenGui.Enabled then
             ScreenGui.Enabled = false
@@ -154,10 +154,10 @@ function Library:CreateWindow(config)
     MinimizeBtn.MouseButton1Click:Connect(ToggleMenu)
     FloatBtn.MouseButton1Click:Connect(ToggleMenu)
 
-    -- Lắng nghe phím F trên bàn phím để ẩn/hiện menu
+    -- Bắt sự kiện bấm phím F trên bàn phím để bật/tắt nhanh
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.F then
-            -- Chỉ cho phép dùng phím F khi menu chính hoặc nút nổi đã sẵn sàng (tức là đã qua bước nhập key)
+            -- Chỉ cho phép dùng phím F khi đã nhập đúng key (tức ScreenGui hoặc FloatGui đang tồn tại)
             if ScreenGui.Parent and FloatGui.Parent then
                 ToggleMenu()
             end
@@ -245,3 +245,243 @@ function Library:CreateWindow(config)
 
     -- ==========================================
     -- HỆ THỐNG NHẬP KEY (Hiệu ứng hiện ra từ từ)
+    -- ==========================================
+    local KeyGui = Instance.new("ScreenGui")
+    KeyGui.Name = "UniverseKeySystem"
+    KeyGui.Parent = CoreGui
+    KeyGui.ResetOnSpawn = false
+
+    local KeyFrame = Instance.new("Frame")
+    KeyFrame.Parent = KeyGui
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    KeyFrame.BackgroundTransparency = 1
+    KeyFrame.Position = UDim2.new(0.5, -210, 0.5, -125)
+    KeyFrame.Size = UDim2.new(0, 420, 0, 250)
+
+    local KeyCorner = Instance.new("UICorner")
+    KeyCorner.CornerRadius = UDim.new(0, 8)
+    KeyCorner.Parent = KeyFrame
+
+    local KeyStroke = Instance.new("UIStroke")
+    KeyStroke.Parent = KeyFrame
+    KeyStroke.Thickness = 2
+    KeyStroke.Transparency = 1
+    KeyStroke.Color = Color3.fromRGB(0, 255, 255)
+
+    local KeyTitle = Instance.new("TextLabel")
+    KeyTitle.Parent = KeyFrame
+    KeyTitle.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    KeyTitle.BackgroundTransparency = 1
+    KeyTitle.Size = UDim2.new(1, 0, 0, 50)
+    KeyTitle.Font = Enum.Font.GothamBold
+    KeyTitle.Text = "🔐 XÁC THỰC KEY UNIVERSE SCRIPT"
+    KeyTitle.TextColor3 = Color3.fromRGB(0, 255, 255)
+    KeyTitle.TextTransparency = 1
+    KeyTitle.TextSize = 15
+
+    local KeyTitleCorner = Instance.new("UICorner")
+    KeyTitleCorner.CornerRadius = UDim.new(0, 8)
+    KeyTitleCorner.Parent = KeyTitle
+
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Parent = KeyFrame
+    KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    KeyInput.BackgroundTransparency = 1
+    KeyInput.Position = UDim2.new(0, 35, 0, 75)
+    KeyInput.Size = UDim2.new(0, 350, 0, 55)
+    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.PlaceholderText = "Nhập key bảo mật tại đây..."
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.TextTransparency = 1
+    KeyInput.TextSize = 14
+
+    local BoxCorner = Instance.new("UICorner")
+    BoxCorner.CornerRadius = UDim.new(0, 6)
+    BoxCorner.Parent = KeyInput
+
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Parent = KeyFrame
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+    SubmitBtn.BackgroundTransparency = 1
+    SubmitBtn.Position = UDim2.new(0, 35, 0, 150)
+    SubmitBtn.Size = UDim2.new(0, 350, 0, 55)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.Text = "XÁC NHẬN MỞ KHÓA"
+    SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+    SubmitBtn.TextTransparency = 1
+    SubmitBtn.TextSize = 14
+
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 6)
+    BtnCorner.Parent = SubmitBtn
+
+    -- Hiệu ứng Fade In cho bảng Key
+    TweenService:Create(KeyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.25}):Play()
+    TweenService:Create(KeyStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0}):Play()
+    TweenService:Create(KeyTitle, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3, TextTransparency = 0}):Play()
+    TweenService:Create(KeyInput, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3, TextTransparency = 0}):Play()
+    TweenService:Create(SubmitBtn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+
+    SubmitBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == CorrectKey then
+            local fadeOutInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            TweenService:Create(KeyFrame, fadeOutInfo, {BackgroundTransparency = 1}):Play()
+            TweenService:Create(KeyStroke, fadeOutInfo, {Transparency = 1}):Play()
+            TweenService:Create(KeyTitle, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(KeyInput, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(SubmitBtn, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            
+            task.wait(0.4)
+            KeyGui:Destroy()
+
+            -- Hiện và trượt menu từ dưới lên
+            ScreenGui.Enabled = true
+            TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0.5, -290, 0.5, -240)
+            }):Play()
+        else
+            SubmitBtn.Text = "❌ SAI KEY! THỬ LẠI"
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+            SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            task.wait(1.5)
+            SubmitBtn.Text = "XÁC NHẬN MỞ KHÓA"
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+            SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+        end
+    end)
+
+    local WindowObj = {}
+    local TabsList = {}
+    local FirstTab = true
+
+    function WindowObj:AddTab(tabConfig)
+        local tabTitle = tabConfig.Title or "Tab"
+        
+        local TabContainer = Instance.new("ScrollingFrame")
+        TabContainer.Parent = ContentArea
+        TabContainer.BackgroundTransparency = 1
+        TabContainer.Size = UDim2.new(1, 0, 1, 0)
+        TabContainer.Visible = FirstTab
+        TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabContainer.ScrollBarThickness = 3
+        TabContainer.ScrollingDirection = Enum.ScrollingDirection.Y
+
+        local TabListLayout = Instance.new("UIListLayout")
+        TabListLayout.Parent = TabContainer
+        TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        TabListLayout.Padding = UDim.new(0, 8)
+
+        TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabListLayout.AbsoluteContentSize.Y + 15)
+        end)
+
+        local TabBtn = Instance.new("TextButton")
+        TabBtn.Parent = Sidebar
+        TabBtn.BackgroundColor3 = FirstTab and Color3.fromRGB(30, 30, 45) or Color3.fromRGB(20, 20, 28)
+        TabBtn.BackgroundTransparency = FirstTab and 0.2 or 0.4
+        TabBtn.Size = UDim2.new(1, 0, 0, 38)
+        TabBtn.Font = Enum.Font.GothamSemibold
+        TabBtn.Text = "  " .. tabTitle
+        TabBtn.TextColor3 = FirstTab and Color3.fromRGB(0, 255, 255) or Color3.fromRGB(180, 180, 200)
+        TabBtn.TextSize = 13
+        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+        local TBtnCorner = Instance.new("UICorner")
+        TBtnCorner.CornerRadius = UDim.new(0, 6)
+        TBtnCorner.Parent = TabBtn
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, t in pairs(TabsList) do
+                t.Container.Visible = false
+                t.Button.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                t.Button.BackgroundTransparency = 0.4
+                t.Button.TextColor3 = Color3.fromRGB(180, 180, 200)
+            end
+            TabContainer.Visible = true
+            TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+            TabBtn.BackgroundTransparency = 0.2
+            TabBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
+        end)
+
+        table.insert(TabsList, {Container = TabContainer, Button = TabBtn})
+        
+        local TabObj = {}
+
+        function TabObj:AddSection(sectionTitle)
+            local SecLabel = Instance.new("TextLabel")
+            SecLabel.Parent = TabContainer
+            SecLabel.BackgroundTransparency = 1
+            SecLabel.Size = UDim2.new(1, -10, 0, 25)
+            SecLabel.Font = Enum.Font.GothamBold
+            SecLabel.Text = ":: " .. string.upper(sectionTitle)
+            SecLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+            SecLabel.TextSize = 11
+            SecLabel.TextXAlignment = Enum.TextXAlignment.Left
+        end
+
+        function TabObj:AddButton(btnConfig)
+            local btnTitle = btnConfig.Title or "Button"
+            local callback = btnConfig.Callback or function() end
+
+            local Button = Instance.new("TextButton")
+            Button.Parent = TabContainer
+            Button.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+            Button.BackgroundTransparency = 0.3
+            Button.Size = UDim2.new(1, -10, 0, 40)
+            Button.Font = Enum.Font.Gotham
+            Button.Text = "  " .. btnTitle
+            Button.TextColor3 = Color3.fromRGB(240, 240, 240)
+            Button.TextSize = 12
+            Button.TextXAlignment = Enum.TextXAlignment.Left
+            Button.AutoButtonColor = false
+
+            local BCorner = Instance.new("UICorner")
+            BCorner.CornerRadius = UDim.new(0, 6)
+            BCorner.Parent = Button
+
+            Button.MouseEnter:Connect(function()
+                Button.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+                Button.BackgroundTransparency = 0.1
+            end)
+            Button.MouseLeave:Connect(function()
+                Button.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+                Button.BackgroundTransparency = 0.3
+            end)
+
+            Button.MouseButton1Click:Connect(function()
+                pcall(callback)
+                Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+                Button.BackgroundTransparency = 0
+                Button.TextColor3 = Color3.fromRGB(15, 15, 20)
+                task.wait(0.15)
+                Button.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+                Button.BackgroundTransparency = 0.1
+                Button.TextColor3 = Color3.fromRGB(240, 240, 240)
+            end)
+        end
+
+        FirstTab = false
+        return TabObj
+    end
+
+    function WindowObj:SelectTab(index)
+        if TabsList[index] then
+            for _, t in pairs(TabsList) do
+                t.Container.Visible = false
+                t.Button.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                t.Button.BackgroundTransparency = 0.4
+                t.Button.TextColor3 = Color3.fromRGB(180, 180, 200)
+            end
+            TabsList[index].Container.Visible = true
+            TabsList[index].Button.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+            TabsList[index].Button.BackgroundTransparency = 0.2
+            TabsList[index].Button.TextColor3 = Color3.fromRGB(0, 255, 255)
+        end
+    end
+
+    return WindowObj
+end
+
+return Library
