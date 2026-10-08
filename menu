@@ -398,7 +398,7 @@ SubmitBtn.MouseButton1Click:Connect(function()
             task.wait(0.04)
         end
         KeyFrame.Position = pos
-        KeyInput.PlaceholderText = "Sai Key! Thử lại (0946)"
+        KeyInput.PlaceholderText = "Cút"
         KeyInput.Text = ""
     end
 end)
