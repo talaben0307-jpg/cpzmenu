@@ -386,17 +386,3 @@ SubmitBtn.MouseButton1Click:Connect(function()
         KeyInput.Text = ""
     end
 end)
-
--- Tạo các tab mẫu
-local Tab1 = CreateTab("Trang Chủ")
-AddButton(Tab1, "Tính năng Hitbox Expander", function()
-    print("Đã bật Hitbox!")
-end)
-AddButton(Tab1, "Tính năng ESP Player", function()
-    print("Đã bật ESP!")
-end)
-
-local Tab2 = CreateTab("Cài Đặt")
-AddButton(Tab2, "Tùy chỉnh thêm ở đây", function()
-    print("Settings clicked!")
-end)
