@@ -1,6 +1,7 @@
 local Library = {}
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 local CorrectKey = "0946"
 
 function Library:CreateWindow(config)
@@ -22,15 +23,16 @@ function Library:CreateWindow(config)
     ScreenGui.Name = "CPZCyberpunkMenu"
     ScreenGui.Parent = CoreGui
     ScreenGui.ResetOnSpawn = false
-    ScreenGui.Enabled = false -- Ẩn menu chính lúc đầu để chờ nhập key
+    ScreenGui.Enabled = false
 
     -- Khung chính phong cách Cyberpunk làm trong suốt một chút
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    MainFrame.BackgroundTransparency = 0.25 -- Làm trong suốt nền chính
-    MainFrame.Position = UDim2.new(0.5, -290, 0.5, -240)
+    MainFrame.BackgroundTransparency = 0.25
+    -- Đặt vị trí ban đầu thấp hơn để chuẩn bị cho hiệu ứng trượt từ dưới lên
+    MainFrame.Position = UDim2.new(0.5, -290, 0.5, 50)
     MainFrame.Size = UDim2.new(0, 580, 0, 480)
     MainFrame.ClipsDescendants = true
 
@@ -53,7 +55,7 @@ function Library:CreateWindow(config)
         end
     end)
 
-    -- Thanh tiêu đề trên cùng (Draggable) - làm trong suốt nhẹ theo
+    -- Thanh tiêu đề trên cùng (Draggable)
     local TopBar = Instance.new("Frame")
     TopBar.Parent = MainFrame
     TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
@@ -102,7 +104,7 @@ function Library:CreateWindow(config)
     MinCorner.CornerRadius = UDim.new(0, 4)
     MinCorner.Parent = MinimizeBtn
 
-    -- Tạo Nút Nổi RGB "HUB" (làm trong suốt nhẹ phần nền)
+    -- Tạo Nút Nổi RGB "HUB"
     local FloatGui = Instance.new("ScreenGui")
     FloatGui.Name = "CPZFloatingHub"
     FloatGui.Parent = CoreGui
@@ -229,7 +231,7 @@ function Library:CreateWindow(config)
     ContentArea.ClipsDescendants = true
 
     -- ==========================================
-    -- HỆ THỐNG NHẬP KEY CYBERPUNK (Nền trong suốt)
+    -- HỆ THỐNG NHẬP KEY (Hiệu ứng hiện ra từ từ)
     -- ==========================================
     local KeyGui = Instance.new("ScreenGui")
     KeyGui.Name = "UniverseKeySystem"
@@ -239,7 +241,7 @@ function Library:CreateWindow(config)
     local KeyFrame = Instance.new("Frame")
     KeyFrame.Parent = KeyGui
     KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    KeyFrame.BackgroundTransparency = 0.25 -- Làm trong suốt khung key
+    KeyFrame.BackgroundTransparency = 1 -- Bắt đầu bằng trong suốt hoàn toàn để làm hiệu ứng hiện dần
     KeyFrame.Position = UDim2.new(0.5, -210, 0.5, -125)
     KeyFrame.Size = UDim2.new(0, 420, 0, 250)
 
@@ -250,16 +252,18 @@ function Library:CreateWindow(config)
     local KeyStroke = Instance.new("UIStroke")
     KeyStroke.Parent = KeyFrame
     KeyStroke.Thickness = 2
+    KeyStroke.Transparency = 1
     KeyStroke.Color = Color3.fromRGB(0, 255, 255)
 
     local KeyTitle = Instance.new("TextLabel")
     KeyTitle.Parent = KeyFrame
     KeyTitle.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
-    KeyTitle.BackgroundTransparency = 0.3
+    KeyTitle.BackgroundTransparency = 1
     KeyTitle.Size = UDim2.new(1, 0, 0, 50)
     KeyTitle.Font = Enum.Font.GothamBold
     KeyTitle.Text = "🔐 XÁC THỰC KEY UNIVERSE SCRIPT"
     KeyTitle.TextColor3 = Color3.fromRGB(0, 255, 255)
+    KeyTitle.TextTransparency = 1
     KeyTitle.TextSize = 15
 
     local KeyTitleCorner = Instance.new("UICorner")
@@ -269,7 +273,7 @@ function Library:CreateWindow(config)
     local KeyInput = Instance.new("TextBox")
     KeyInput.Parent = KeyFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    KeyInput.BackgroundTransparency = 0.3
+    KeyInput.BackgroundTransparency = 1
     KeyInput.Position = UDim2.new(0, 35, 0, 75)
     KeyInput.Size = UDim2.new(0, 350, 0, 55)
     KeyInput.Font = Enum.Font.Gotham
@@ -277,6 +281,7 @@ function Library:CreateWindow(config)
     KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.TextTransparency = 1
     KeyInput.TextSize = 14
 
     local BoxCorner = Instance.new("UICorner")
@@ -286,21 +291,51 @@ function Library:CreateWindow(config)
     local SubmitBtn = Instance.new("TextButton")
     SubmitBtn.Parent = KeyFrame
     SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+    SubmitBtn.BackgroundTransparency = 1
     SubmitBtn.Position = UDim2.new(0, 35, 0, 150)
     SubmitBtn.Size = UDim2.new(0, 350, 0, 55)
     SubmitBtn.Font = Enum.Font.GothamBold
     SubmitBtn.Text = "XÁC NHẬN MỞ KHÓA"
     SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+    SubmitBtn.TextTransparency = 1
     SubmitBtn.TextSize = 14
 
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 6)
     BtnCorner.Parent = SubmitBtn
 
+    -- Hiệu ứng Fade In (Hiện ra từ từ) cho bảng Key
+    local fadeInTween = TweenService:Create(KeyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.25})
+    local strokeFade = TweenService:Create(KeyStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0})
+    local titleFade = TweenService:Create(KeyTitle, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3, TextTransparency = 0})
+    local inputFade = TweenService:Create(KeyInput, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3, TextTransparency = 0})
+    local btnFade = TweenService:Create(SubmitBtn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0, TextTransparency = 0})
+
+    fadeInTween:Play()
+    strokeFade:Play()
+    titleFade:Play()
+    inputFade:Play()
+    btnFade:Play()
+
     SubmitBtn.MouseButton1Click:Connect(function()
         if KeyInput.Text == CorrectKey then
+            -- Hiệu ứng Fade Out (Mờ dần) trước khi xóa bảng Key
+            local fadeOutInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            TweenService:Create(KeyFrame, fadeOutInfo, {BackgroundTransparency = 1}):Play()
+            TweenService:Create(KeyStroke, fadeOutInfo, {Transparency = 1}):Play()
+            TweenService:Create(KeyTitle, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(KeyInput, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(SubmitBtn, fadeOutInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            
+            task.wait(0.4)
             KeyGui:Destroy()
+
+            -- Kích hoạt và cho menu chính trượt từ dưới lên mượt mà
             ScreenGui.Enabled = true
+            local slideTween = TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0.5, -290, 0.5, -240)
+            })
+            slideTween:Play()
         else
             SubmitBtn.Text = "❌ SAI KEY! THỬ LẠI"
             SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
